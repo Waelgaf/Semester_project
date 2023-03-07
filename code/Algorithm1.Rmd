@@ -1,0 +1,69 @@
+---
+title: "Algorithm 1"
+author: "Wael"
+date: "01/03/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(igraph)
+```
+
+```{r}
+#Algorithm 1
+Algo_1 <- function(Y, K){
+  #Inputs: Y: Adjency tensor
+  #      : K: Number of communities
+  
+  #Outputs: g: Membership vector
+  #       : B: community wise connectivity (tensor)
+  #Initialization:
+  m <- dim(Y)[1]
+  n <- dim(Y)[2]
+  
+  #Loop until convergence criterion
+  #Step 2 (loop for to determine the argmin and derive g_new):
+  #Transform slightly the indices of B_old to manipulate it easily
+  B_old1 <- array(0,c(m,k,n))
+  for (j in 1:n){
+    B_old1[,,j] <- B_old[,,g_old[j]]
+  }
+  
+  
+  g_new <- 1:n
+  for (j in 1:n){
+    g <- 10^99
+    nj <- 0
+    for (k in 1:K){
+      g_j_k <- sum((Y[,j,] - B_old[,k,])^2)
+      g_j_k <- g_j_k - sum((Y[,j,j] - B_old[,k,j])^2)
+      if (g > g_j_k){
+        g <- g_j_k
+        nj <- k
+      }
+    }
+    g_new[j] <- nj 
+   }
+  
+  #Step3: (derive B_new)
+  for (k1 in 1:K){
+    for (k2 in 1:K){
+      for (i in 1:m){
+        w_k1 <- c(g_new == k1)
+        w_k2 <- c(g_new == k2)
+        w <- c(w_k1==w_k2)
+        B_new[i,k1,k2] <- sum(Y[i,,]*w)/sum(w)
+        
+      }
+    }
+  }
+  
+  #Step 4:
+}
+```
+
+
