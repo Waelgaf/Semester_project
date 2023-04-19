@@ -1,0 +1,14 @@
+---
+title: "dechet_projet"
+author: "Wael"
+date: "12/04/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("Algo1.R")
+source("Algo3.R")
+source("Generation_network.R")
+source("plot_network.R")
+```

@@ -1,0 +1,62 @@
+---
+title: "toy_example"
+author: "Wael"
+date: "05/04/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(igraph)
+library(stats)
+library(Matrix)
+library(mc2d)
+```
+
+
+```{r}
+source("Algo1.R")
+source("Algo3.R")
+source("Generation_network.R")
+source("plot_network.R")
+```
+
+```{r}
+#Network simulation
+network <- simul_final(50, c(2, 2), c(3,4),2)
+Ad <- network[[1]]
+
+#Application of ALMA
+r <- Algo_3(network[[1]], c(3, 2))
+
+#Kmeans on W and Q
+y <- layer_comm(r[[2]], 2)
+x <- nodes_comm(r[[1]], c(2,2))
+```
+
+```{r}
+set.seed(561)
+g1 <- graph_from_adjacency_matrix(Ad[1,,])
+cols <- c("blue","red")
+q <- unlist(x[[1]][1])
+
+plot(g1,vertex.size = degree(g1)/5, vertex.label=  NA,
+  edge.arrow.size = .2, vertex.color=cols[q], edge.color = "grey")
+#plot(g, vertex.size = 1, vertex.label = NA)
+```
+```{r}
+plot_network(Ad[1,,], unlist(x[[1]][1]), 2)
+```
+```{r}
+network <- simul_final(100, c(2, 2), c(3,4),2)
+Ad <- network[[1]]
+
+
+
+r <- Algo_3(network[[1]], c(3, 2))
+```
+
+
+
+
+

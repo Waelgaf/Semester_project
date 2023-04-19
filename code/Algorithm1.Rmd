@@ -11,59 +11,175 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(igraph)
+library(stats)
+library(Matrix)
+library(mc2d)
+```
+```{r}
+simulation_network <- function(m, n, p=0){
+  x <- c()
+  if (p==0){
+    p <- runif(1,0,0.6) #Ideally, if p is lower than 0.5, the correspondant graph will be sparse
+  }
+  for(j in 1:m){
+    d <- rbern(n*n, p)
+    layer <- matrix(d,n,n)
+    layer <- forceSymmetric(layer, "U")
+    layer <- layer - diag(diag(layer))
+    
+    x <- append(x, as.vector(layer))
+  }
+  Y_o <- array(x, c(n, n,m))
+  Y <- array(0,c(m,n,n))
+  for(i in 1:m){
+    Y[i,,]<-Y_o[,,i]
+  }
+  return(Y)
+  
+}
 ```
 
+
 ```{r}
+#Loss function
+loss_function <- function(Y,B,h){
+  n <- dim(Y)[3]
+  m <- dim(Y)[1]
+  B1 <- array(0,c(m,n,n))
+  for(i in 1:n){
+    for(j in 1:n){
+      B1[,i,j]<-B[,h[i],h[j]]
+    }
+    
+  }
+  s <- 0
+  
+  for(j in 1:m){
+    Y[j,,] <- Y[j,,] - diag(diag(Y[j,,]))
+    B1[j,,] <- B1[j,,] - diag(diag(B1[j,,]))
+    s1 <- sum((Y[j,,] - B1[j,,])^2)
+    s <- s + s1
+  }
+  return(s) 
+  
+}
+
 #Algorithm 1
 Algo_1 <- function(Y, K){
-  #Inputs: Y: Adjency tensor
-  #      : K: Number of communities
+  #Inputs: Y: Adjacency tensor
+  #      : K: Number of communities (each layer have the same number of communities)
   
   #Outputs: g: Membership vector
   #       : B: community wise connectivity (tensor)
-  #Initialization:
+  
   m <- dim(Y)[1]
   n <- dim(Y)[2]
-  
-  #Loop until convergence criterion
-  #Step 2 (loop for to determine the argmin and derive g_new):
-  #Transform slightly the indices of B_old to manipulate it easily
-  B_old1 <- array(0,c(m,k,n))
+  #Initialization
+  ind <- matrix(nrow= n , ncol=m*n )
   for (j in 1:n){
-    B_old1[,,j] <- B_old[,,g_old[j]]
+    ind[j,] <- c(Y[,j,])
   }
   
+  comm <- kmeans(t(ind), K, iter.max = 100)
+  g_old <- c(comm$cluster)
+  B_old <- array(0,c(m,K,K))
   
-  g_new <- 1:n
-  for (j in 1:n){
-    g <- 10^99
-    nj <- 0
-    for (k in 1:K){
-      g_j_k <- sum((Y[,j,] - B_old[,k,])^2)
-      g_j_k <- g_j_k - sum((Y[,j,j] - B_old[,k,j])^2)
-      if (g > g_j_k){
-        g <- g_j_k
-        nj <- k
-      }
-    }
-    g_new[j] <- nj 
-   }
   
-  #Step3: (derive B_new)
   for (k1 in 1:K){
     for (k2 in 1:K){
       for (i in 1:m){
+        w_k1 <- c(g_old == k1)
+        w_k2 <- c(g_old == k2)
+        w <- w_k1%*%t(w_k2)
+        w <- w -diag(diag(w))
+        s <- sum(w)
+        if(s == 0){
+          B_old[i,k1,k2] <- 0
+        }else{
+          ki <- as.matrix(Y[i,,])*as.matrix(w)
+          B_old[i,k1,k2] <- sum(Y[i,,]*w)/s
+        
+      }
+    }
+    }
+  }
+  
+  si <- loss_function(Y,B_old, g_old)
+  #Loop until convergence criterion
+  #Step 2 (loop for to determine the argmin and derive g_new):
+  
+  repeat{
+  g_new <- 1:n
+  for(i in 1:n){
+    gm <- 10^99
+    for(k in 1:K){
+      gk <- 0
+      for(l in 1:n){
+        gk <- gk + sum((Y[,i,l]-B_old[,k,g_old[l]])^2)
+        
+      }
+      gk <- gk - sum((Y[,i,i] - B_old[,k,g_old[i]])^2)
+      if (gk < gm){
+        lk <-  k
+        gm <- gk
+      }
+      
+    }
+    g_new[i] <- lk
+    
+  }
+  
+    
+  
+  #Step3: (derive B_new)
+  B_new <- array(0,c(m,K,K))
+  for (k1 in 1:K){
+    for (k2 in 1:k1){
+      for (i in 1:m){
         w_k1 <- c(g_new == k1)
         w_k2 <- c(g_new == k2)
-        w <- c(w_k1==w_k2)
-        B_new[i,k1,k2] <- sum(Y[i,,]*w)/sum(w)
+        w <- w_k1%*%t(w_k2)
+        w <- w -diag(diag(w))
+        s <- sum(w)
+        if(s == 0){
+          print(g_new)
+          B_new[i,k1,k2] <- 0
+        }else{
+          ki <- as.matrix(Y[i,,])*as.matrix(w)
+          B_old[i,k1,k2] <- sum(Y[i,,]*w)/s
+        }
+        B_new[i,k2,k1] <- B_new[i,k1,k2]
         
       }
     }
   }
   
   #Step 4:
+  sn <- loss_function(Y, B_new, g_new)
+  
+  if(si > sn){
+     B_old <- B_new
+     g_old <- g_new
+  }else{
+    return(g_old)
+  }
+}
+ 
+  
 }
 ```
+
+```{r}
+Y <- array(c(0,1,1,0,0,1,1,0), c(2,2,2))
+Algo_1(Y,2)
+```
+```{r}
+A <- simulation_network(3,7, 0.4)
+A[1,,]
+Algo_1(A,3)
+
+```
+
+
 
 
