@@ -34,17 +34,20 @@ simul_mlbm <- function(B, G, n, L){
   #n : Number of individuals
   #L : vector of size m(=number of layer), membership of class of layer
   #Output: Adjacency tensor
+  #L_true: (Layer) Membership vector
   M <- length(B)
   l <- sum(L)
   A <- array(0,c(l,n,n))
   i <- 1
+  L_true <- 1:l
   for(m in 1:M){
     for(k in 1:L[m]){
+      L_true[i] <- m
       A[i,,] <- simul_bm(B[[m]], G[[m]], n)
       i <- i + 1
     }
   }
-  return(A)
+  return(list(A, L_true))
 }
 
 simul_layer <- function(n, K){
@@ -53,14 +56,17 @@ simul_layer <- function(n, K){
   #K : number of communities
   #Output: Membership matrix
   Z <- matrix(0,n,K)
+  Z_true <- 1:n
   for(i in 1:n){
-    Z[i,] <- c(sample(1:K, 1) == 1:K)
+    z <- sample(1:K, 1)
+    Z[i,] <- c(z == 1:K)
+    Z_true[i] <- z
   }
-  return(Z)
+  return(list(Z,Z_true))
 }
 
 
-simul_final <- function(n, K, L, M = length(M)){
+simul_final <- function(n, K, L, M = length(L)){
   #Inputs:
   #n: number of individuals
   #K: vector of size M which corresponds to the number of communities in each class of layer
@@ -70,13 +76,18 @@ simul_final <- function(n, K, L, M = length(M)){
   # B: Stochastic Blockmodel list
   # A; Adjacency tensor
   # Z: Membership tensor
+  # L_true: (Layer) Membership vector
+  # G_true:(Communities)list of Membership vector
   l <- sum(L)
-  B = list()
-  Z = list()
+  B <- list()
+  Z <- list()
+  Z_true <- list()
   A <- array(0, c(l,n,n))
   t = 1
   for(i in 1:M){
-    Z[[i]] <- simul_layer(n, K[i])
+    sl <- simul_layer(n, K[i])
+    Z[[i]] <- sl[[1]]
+    Z_true[[i]] <- sl[[2]]
     di <- runif(K[i], 0.9, 1)
     B[[i]] <- diag(di)
     for(j1 in 1:K[i]-1){
@@ -88,7 +99,9 @@ simul_final <- function(n, K, L, M = length(M)){
     }
     
   }
-  A <- simul_mlbm(B, Z, n, L)
-  return(list(A, B, Z))
+  S <- simul_mlbm(B, Z, n, L)
+  A <- S[[1]]
+  L_true <- S[[2]]
+  return(list(A, B, Z, L_true, Z_true))
   
 }

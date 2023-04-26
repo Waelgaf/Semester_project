@@ -148,7 +148,7 @@ layer_comm <- function(W, m){
     Z[i,] <- c(L== g[i])
   }
   
-  return(Z)
+  return(list(g, Z))
 }
 nodes_comm <- function(Q, K){
   m <- length(K)
@@ -172,4 +172,8 @@ nodes_comm <- function(Q, K){
     Z[[i]] <- Zi
   }
   return(list(g, Z))
+}
+
+B_est <- function(W,Q){
+  return(prod_1(Q,W))
 }
