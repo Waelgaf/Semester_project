@@ -27,6 +27,8 @@ error_layers <- function(S_true, S_est, m){
   L <- length(S_true)
   # L: number of layers
   f <- permn(m, fun = function(x) {error_perm(x,S_true, S_est)})
+  print(length(f))
+  print(L)
   return(1/L*min(unlist(f)))
 
 }

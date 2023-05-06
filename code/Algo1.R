@@ -3,27 +3,27 @@ library(stats)
 library(Matrix)
 library(mc2d)
 
-simulation_network <- function(m, n, p=0){
-  x <- c()
-  if (p==0){
-    p <- runif(1,0,0.6) #Ideally, if p is lower than 0.5, the correspondent graph will be sparse
-  }
-  for(j in 1:m){
-    d <- rbern(n*n, p)
-    layer <- matrix(d,n,n)
-    layer <- forceSymmetric(layer, "U")
-    layer <- layer - diag(diag(layer))
-    
-    x <- append(x, as.vector(layer))
-  }
-  Y_o <- array(x, c(n, n,m)) #To be improved!!!
-  Y <- array(0,c(m,n,n))
-  for(i in 1:m){
-    Y[i,,]<-Y_o[,,i]
-  }
-  return(Y)
-  
-}
+# simulation_network <- function(m, n, p=0){
+#   x <- c()
+#   if (p==0){
+#     p <- runif(1,0,0.6) #Ideally, if p is lower than 0.5, the correspondent graph will be sparse
+#   }
+#   for(j in 1:m){
+#     d <- rbern(n*n, p)
+#     layer <- matrix(d,n,n)
+#     layer <- forceSymmetric(layer, "U")
+#     layer <- layer - diag(diag(layer))
+#     
+#     x <- append(x, as.vector(layer))
+#   }
+#   Y_o <- array(x, c(n, n,m)) #To be improved!!!
+#   Y <- array(0,c(m,n,n))
+#   for(i in 1:m){
+#     Y[i,,]<-Y_o[,,i]
+#   }
+#   return(Y)
+#   
+# }
 
 #Loss function
 loss_function <- function(Y,B,h){
@@ -31,6 +31,8 @@ loss_function <- function(Y,B,h){
   # Y: Adjacency tensor w/ 0 the diagonal entries
   # B: Stochastic block model (tensor)
   # h: membership vector
+  #Output:
+  # Loss function
   n <- dim(Y)[3]
   B1 <- B[,h,h]
   for(i in 1:n){
@@ -57,7 +59,7 @@ Algo_1 <- function(Y, K, iter_max = 150){
   }
   
   comm <- kmeans(ind, K, iter.max = 100)
-  g_old <- c(comm$cluster)
+  g_old <- comm$cluster
   B_old <- array(0,c(m,K,K))
   si <- loss_function(Y,B_old, g_old)
   for (k1 in 1:K){

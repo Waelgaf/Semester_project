@@ -56,27 +56,36 @@ prod_1 <- function(X, A){
   m <- dim(A)[1]
   Y <- array(1,c(m, d[2], d[3]))
   X_t <- matrix(0,d[1], d[2]*d[3])
-  for(i in 1:d[1]){
-    X_t[i,]<-c(X[i,,])
-  }
+  # for(i in 1:d[1]){
+  #   X_t[i,]<-c(X[i,,])
+  # }
+  X_t <- matrix(X, d[1])
   Y_t <- A %*% X_t
   
-  for(i in 1:m){
-    Y[i,,] <- array(c(Y_t[i,]),d[-1])
-  }
+  # for(i in 1:m){
+  #   Y[i,,] <- array(c(Y_t[i,]),d[-1])
+  # }
+  Y <- array(Y_t,c(m,d[2],d[3]))#NOT SURE OF THAT
   return(Y)
   
 }
 
-prod_2_3 <- function(A, Q){
-  d1 <- dim(A)
-  d2 <- dim(Q)
-  C <- matrix(0,d1[1], d2[1]) 
-  for(i in 1:d1[1]){
-    for(j in 1:d2[1]){
-      C[i,j] <- crossprod(c(Q[j,,]), c(A[i,,]))
-    }
-  }
+prod_2_3 <- function(A, B){
+  # d1 <- dim(A)
+  # d2 <- dim(Q)
+  # C <- matrix(0,d1[1], d2[1])
+  # for(i in 1:d1[1]){
+  #   for(j in 1:d2[1]){
+  #     C[i,j] <- crossprod(c(Q[j,,]), c(A[i,,]))
+  #   }
+  # }
+  # A <- matrix(A, nrow = dim(A)[1])
+  # Q <- matrix(Q, nrow = dim(Q)[1])
+  # C <- tcrossprod(Q,A)
+  
+  A <- matrix(A, nrow = dim(A)[1])
+  B <- matrix(B, nrow = dim(B)[1])
+  C <- tcrossprod(A,B)
  
   return(C)
   
@@ -92,6 +101,7 @@ init_algo3 <- function(A,m){
   for(i in 1:d[1]){
     A_t[i,]<-c(A[i,,])
   }
+  #A_t <- matrix(A, d[1])
   S <- svds(A_t, m, nu = m)
   W_0 <- S$u
   me <- kmeans(W_0, m, iter.max = 100)
@@ -107,7 +117,7 @@ init_algo3 <- function(A,m){
 }
 
 
-Algo_3 <- function(A, K, iter_max = 100, e = 0.05){
+Algo_3 <- function(A, K, iter_max = 150, e = 0.05){
   #Inputs:
   # A: adjacency tensor of dimension Lxnxn
   # K: vector of length M (=number of class of layers) and K_i = number of communities in class i
@@ -159,10 +169,11 @@ nodes_comm <- function(Q, K){
     Qi <- Q[i,,]
     Ui <- eigen(Qi)$vectors
     Uit <- matrix(0,n, K[i] )
-    for(j in 1:K[i]){
-      Uit[,j] <- Ui[,j]
-      
-    }
+    # for(j in 1:K[i]){
+    #   Uit[,j] <- Ui[,j]
+    #   
+    # }
+    Uit <- Ui[,1:K[i]]
     g[[i]] <- kmeans(Uit, K[i])$cluster
     Zi <- array(0, c(n, m))
     L <- 1:m
@@ -174,6 +185,3 @@ nodes_comm <- function(Q, K){
   return(list(g, Z))
 }
 
-B_est <- function(W,Q){
-  return(prod_1(Q,W))
-}
