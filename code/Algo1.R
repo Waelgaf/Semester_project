@@ -129,10 +129,10 @@ Algo_1 <- function(Y, K, iter_max = 150){
     
     #Step 4:
     sn <- loss_function(Y, B_new, g_new)
-    print(o)
+    #print(o)
     
     if((si > sn)&&(o<iter_max)) {
-      print(o)
+      #print(o)
       B_old <- B_new
       g_old <- g_new
     }else{

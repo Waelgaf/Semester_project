@@ -80,7 +80,7 @@ error_algo3 <- function(n, K, L, M){
   }
   j <- j+1
   
-  return(c(e_l,e_c))
+  return(c(e_l,e_c/M))
   
 }
 
@@ -103,7 +103,7 @@ error_algo3_new <- function(n, K, L, M){
   }
   j <- j+1
   
-  return(c(e_l,e_c))
+  return(c(e_l,e_c/M))
   
 }
 
@@ -117,6 +117,8 @@ M <- 3
 #   
 # })
 # MSE_plot_communities_3(N, k, L, M)
-MSE_plot_layers_3(N, k, L, M)
+#MSE_plot_layers_3(N, k, L, M)
 # #stoch_block_error_3(60, k, L, M)
+#error_algo3_new(100, 3, 40, 3)
+
 

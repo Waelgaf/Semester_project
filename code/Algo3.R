@@ -149,7 +149,7 @@ Algo_3 <- function(A, K, iter_max = 150, e = 0.05){
 }
 
 
-layer_comm <- function(W, m){
+layer_comm_3 <- function(W, m){
   l <- dim(W)[2]
   g <- kmeans(t(W), m)$cluster
   L <- 1:m
@@ -160,7 +160,7 @@ layer_comm <- function(W, m){
   
   return(list(g, Z))
 }
-nodes_comm <- function(Q, K){
+nodes_comm_3 <- function(Q, K){
   m <- length(K)
   n <- dim(Q)[2]
   g <- list()

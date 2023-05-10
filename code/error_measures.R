@@ -27,8 +27,6 @@ error_layers <- function(S_true, S_est, m){
   L <- length(S_true)
   # L: number of layers
   f <- permn(m, fun = function(x) {error_perm(x,S_true, S_est)})
-  print(length(f))
-  print(L)
   return(1/L*min(unlist(f)))
 
 }
@@ -42,5 +40,17 @@ error_nodes_one <- function(G_true, G_est, km){
   f <- permn(km, fun = function(x){error_perm(x, G_true, G_est)})
   
   return(1/n*min(unlist(f)))
+}
+
+#Missclassification error rate for a multilayer network for the nodes
+
+error_nodes <- function(G_true, G_est, k){
+  #Inputs: ....
+  M <- length(G_true)
+  e <- 0
+  for(i in 1:M){
+    e <- error_nodes_one(G_true[[i]], G_est[[i]], k) + e
+  }
+  return(1/M*e)
 }
 

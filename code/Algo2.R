@@ -8,8 +8,7 @@ library(rMultiNet)
 norm_vec <- function(x) sqrt(sum(x^2))
 reg_vec <- function(x,delta) min(delta,norm_vec(x))/norm_vec(x)*x
 
-PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05)
-{
+PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05){
   stopifnot(is(tnsr, "Tensor"))
   if (is.null(ranks))
     stop("ranks must be specified")
@@ -97,22 +96,59 @@ PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000,
   }
 
 }
-#Number of inidividuals
-N <- 64
-#Communities
-K <- c(2,2)
-#Class of layer
-L <- c(2,2)
-M <- 2
 
-netwe <- simul_final(N,K,L,M)
-A <- array(0,c(n,n,4))
-for(i in 1:4){
-  A[,,i] <- netwe[[1]][i,,]
+layer_comm_2 <- function(W, m){
+  l <- dim(W)[1]
+  g <- kmeans(W, m)$cluster
+  L <- 1:m
+  Z <- array(0, c(l, m))
+  for(i in 1:l){
+    Z[i,] <- c(L== g[i])
+  }
+  
+  return(list(g, Z))
 }
-tnsr <- as.tensor(A)
-U_init <- InitializationMMSBM(tnsr)
-r <- PowerIteration(tnsr, type="TWIST", U_init, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05)
+
+nodes_comm_2 <- function(A, g_lay, K){
+  A <- A@data
+  n <- dim(A)[2]
+  m <- length(K)
+  Z <- list()
+  g_nodes <- list()
+  for(i in 1:m){
+    l <- which(g_lay == i)
+    Al <- matrix(A[l,,],nrow = n)
+    g_nodes[[i]] <- kmeans(Al, K[i])$cluster
+    Zi <- array(0, c(n, m))
+    L <- 1:m
+    for(j in 1:n){
+      Zi[j,] <- c(L== g_nodes[[i]][j])
+    }
+    Z[[i]] <- Zi
+  }
+  return(list(g_nodes,Z))
+  
+}
+# #Number of inidividuals
+# N <- 64
+# #Communities
+# K <- c(2,2)
+# #Class of layer
+# L <- c(4,4)
+# M <- 2
+# 
+# netwe <- simul_final(N,K,L,M)
+# A <- array(0,c(N,N,8))
+# for(i in 1:8){
+#   A[,,i] <- netwe[[1]][i,,]
+# }
+# tnsr <- as.tensor(A)
+# r <- c(8,8,2)
+# U_init <- InitializationMMSBM(tnsr, ranks = r )
+# f <- PowerIteration(tnsr, ranks = r, type="TWIST", U_init, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05)
+# print(dim(f[[3]]))
+# # layes <- layer_comm_2(f[[2]], M)
+# # nod <- nodes_comm_2(A, layes[[1]], K)
 
 
 
