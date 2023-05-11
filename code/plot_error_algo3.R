@@ -116,7 +116,7 @@ M <- 3
 #   MSE_plot_communities_3(N, k, L, M)
 #   
 # })
-# MSE_plot_communities_3(N, k, L, M)
+MSE_plot_communities_3(N, k, L, 1)
 #MSE_plot_layers_3(N, k, L, M)
 # #stoch_block_error_3(60, k, L, M)
 #error_algo3_new(100, 3, 40, 3)

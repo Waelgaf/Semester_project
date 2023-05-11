@@ -15,8 +15,6 @@ source("Generation_network.R")
 source("global_error.R")
 source("error_measures.R")
 library(ggplot2)
-
-
 ```
 
 
@@ -31,9 +29,9 @@ library(ggplot2)
 L <- 40
 K <- 3
 M <- 3
-ro <- 0.7
-a <- 0.5
-N <- c(60, 90, 120, 150, 180, 210, 240, 270)
+ro <- 0.6
+a <- 0.9
+N <- c(60, 150, 270)
 er_2l <- rep(0, length(N))
 er_3l <- rep(0, length(N))
 er_2n <- rep(0, length(N))
@@ -43,14 +41,15 @@ j <- 0
 for(n in N){
   j <- j+1
   e <- rep(0,4)
-  nl <- rep(n,5)
+  nl <- rep(n,2)
   for(i in nl){
     e <- error_12(n, K, L, M, ro, a) + e
+    print(n)
   }
-  er_2l[j] <- e[1]/5
-  er_3l[j] <- e[2]/5
-  er_2n[j] <- e[3]/5
-  er_3n[j] <- e[4]/5
+  er_2l[j] <- e[1]/2
+  er_3l[j] <- e[2]/2
+  er_2n[j] <- e[3]/2
+  er_3n[j] <- e[4]/2
 }
 gnN <- ggplot(data = NULL,aes(x=N))
 gnN <- gnN + geom_line(aes(y=er_2n), colour = "green")
@@ -85,8 +84,8 @@ for(m in M){
   j <- j+1
   e <- rep(0,4)
   ml <- rep(m,5)
-  for(i in nl){
-    e <- error_12(N, K, L, ml, ro, a) + e
+  for(i in ml){
+    e <- error_12(N, K, L, m, ro, a) + e
   }
   er_2l[j] <- e[1]/5
   er_3l[j] <- e[2]/5
@@ -118,7 +117,7 @@ L <- c(4,4)
 K <- 3
 ro <- 0.7
 a <- 0.5
-N <- c(60, 90, 120, 150, 180)
+N <- c(60, 90, 120)
 er_1n <- rep(0, length(N))
 er_2n <- rep(0, length(N))
 er_3n <- rep(0, length(N))
@@ -127,13 +126,13 @@ j <- 0
 for(n in N){
   j <- j+1
   e <- rep(0,3)
-  nl <- rep(n,5)
+  nl <- rep(n,2)
   for(i in nl){
     e <- error_123(n, K, L, ro, a) + e
   }
-  er_1n[j] <- e[1]/5
-  er_2n[j] <- e[2]/5
-  er_3n[j] <- e[3]/5
+  er_1n[j] <- e[1]/2
+  er_2n[j] <- e[2]/2
+  er_3n[j] <- e[3]/2
 }
 gn <- ggplot(data = NULL,aes(x=N))
 gn <- gn + geom_line(aes(y=er_1n), colour = "red")

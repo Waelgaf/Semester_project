@@ -8,7 +8,7 @@ library(rMultiNet)
 norm_vec <- function(x) sqrt(sum(x^2))
 reg_vec <- function(x,delta) min(delta,norm_vec(x))/norm_vec(x)*x
 
-PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05){
+PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000, delta2=1000, max_iter = 40, tol = 1e-05){
   stopifnot(is(tnsr, "Tensor"))
   if (is.null(ranks))
     stop("ranks must be specified")
@@ -143,10 +143,11 @@ nodes_comm_2 <- function(A, g_lay, K){
 #   A[,,i] <- netwe[[1]][i,,]
 # }
 # tnsr <- as.tensor(A)
-# r <- c(8,8,2)
+# r <- c(6,6,2)
 # U_init <- InitializationMMSBM(tnsr, ranks = r )
 # f <- PowerIteration(tnsr, ranks = r, type="TWIST", U_init, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05)
-# print(dim(f[[3]]))
+# a <- Community_cluster_km(f[[2]],"N",M)
+# #print(dim(f[[1]]))
 # # layes <- layer_comm_2(f[[2]], M)
 # # nod <- nodes_comm_2(A, layes[[1]], K)
 

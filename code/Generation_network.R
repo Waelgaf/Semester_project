@@ -186,7 +186,7 @@ alma_generation <- function(n, K, L, M, ro, a){
   A <- S[[1]]
   A1 <- S[[3]]
   L_true <- S[[2]]
-  sh <- sample(1:L)
+  sh <- sample(1:length(L_true))
   A <- A[sh,,]
   A1 <- A1[,,sh]
   L_true <- L_true[sh]
@@ -194,7 +194,7 @@ alma_generation <- function(n, K, L, M, ro, a){
   
 }
 
-alma_generation_M1 <- function(n, K, L, M=2, ro, a){
+alma_generation_M1 <- function(n, K, L, M, ro, a){
   #Inputs:
   # n: the number of individuals
   # K: the number of community in each class (homogene class)
@@ -205,13 +205,14 @@ alma_generation_M1 <- function(n, K, L, M=2, ro, a){
   Z <- list()
   Z_true <- list()
   B_1 <- list()
+  L_t <- rep(L,M)
   for(i in 1:M){
     sl <- simul_layer(n, K)
     Z[[i]] <- sl[[1]]
     Z_true[[i]] <- sl[[2]]
     B_1[[i]] <- B
   }
-  S <- simul_mlbm(B_1, Z, n, L)
+  S <- simul_mlbm(B_1, Z, n, L_t)
   A <- S[[1]]
   A1 <- S[[3]]
   L_true <- S[[2]]
