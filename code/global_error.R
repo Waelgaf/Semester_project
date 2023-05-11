@@ -64,10 +64,10 @@ error_12<-function(n, K, L, M, ro, a){
   f <- PowerIteration(A1, ranks = r, type="TWIST", U_init, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05)
   gl2 <- layer_comm_2(f[[2]], M)[[1]]
   gn2 <- nodes_comm_2(A1, gl2, rep(K,M))[[1]]
+  en2 <- error_nodes(true_nod, gn2, K)
   el2 <- error_layers(true_lay, gl2, M)
   #print(length(gn2))
-  en2 <- error_nodes(true_nod, gn2, K)
-  
+
   #Algorithm 3
   s3 <- Algo_3(A, rep(K,M))
   gl3 <- layer_comm_3(s3[[2]], M)[[1]]
