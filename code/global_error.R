@@ -20,25 +20,25 @@ error_123<-function(n, K, L, ro, alpha){
   g11 <- list(Algo_1(A3[l1,,], K))
   g12 <- list(Algo_1(A3[l2,,], K))
   e1 <- 0.5*(error_nodes_one(true_nod1, g11, K) + error_nodes_one(true_nod2, g12, K)) 
-  print("algo1")
-  print(e1)
+  # print("algo1")
+  # print(e1)
   
   #Algorithm 2
   # r <- c(K,K,M)
   # U_init <- InitializationMMSBM(A1, ranks = r )
   # f <- PowerIteration(A1, ranks = r, type="TWIST", U_init, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05)
   g2 <- nodes_comm_2(A1, L_t, rep(K,2))[[1]]
-  print(g2[[1]])
+  # print(g2[[1]])
   e2 <- error_nodes(true_nod, g2, K)
-  print("algo2")
-  print(e2)
+  # print("algo2")
+  # print(e2)
   
   #Algorithm 3
   s3 <- Algo_3(A3,rep(K, 2))
   g3 <- nodes_comm_3(s3[[1]], rep(K,2))[[1]]
   e3 <- error_nodes(true_nod, g3, K)
-  print("algo3")
-  print(e3)
+  # print("algo3")
+  # print(e3)
   
   return(c(e1,e2,e3))
   

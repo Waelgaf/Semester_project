@@ -8,7 +8,7 @@ library(rMultiNet)
 norm_vec <- function(x) sqrt(sum(x^2))
 reg_vec <- function(x,delta) min(delta,norm_vec(x))/norm_vec(x)*x
 
-PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000, delta2=1000, max_iter = 10, tol = 1e-05){
+PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000, delta2=1000, max_iter = 70, tol = 1e-05){
   stopifnot(is(tnsr, "Tensor"))
   if (is.null(ranks))
     stop("ranks must be specified")
@@ -39,8 +39,8 @@ PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000,
     }
     pb <- txtProgressBar(min = 0, max = max_iter, style = 3)
     while ((curr_iter < max_iter) && (!converged)) {
-      cat("iteration", curr_iter, "\n")
-      setTxtProgressBar(pb, curr_iter)
+      #cat("iteration", curr_iter, "\n")
+      #setTxtProgressBar(pb, curr_iter)
       modes <- tnsr@modes
       modes_seq <- 1:num_modes
 
@@ -68,7 +68,7 @@ PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000,
 
       if (CHECK_CONV(Z, U_list)) {
         converged <- TRUE
-        setTxtProgressBar(pb, max_iter)
+        #setTxtProgressBar(pb, max_iter)
       }
       else {
         curr_iter <- curr_iter + 1
@@ -112,15 +112,16 @@ layer_comm_2 <- function(W, m){
 nodes_comm_2 <- function(A, g_lay, K){
   A <- A@data
   n <- dim(A)[2]
-  m <- length(K)
+  M <- length(K)
   Z <- list()
   g_nodes <- list()
-  for(i in 1:m){
+  for(i in 1:M){
     l <- which(g_lay == i)
-    Al <- matrix(A[l,,],nrow = n)
+    Al <- A[,,l]
+    Al <- apply(Al,1:2, mean)
     g_nodes[[i]] <- kmeans(Al, K[i])$cluster
-    Zi <- array(0, c(n, m))
-    L <- 1:m
+    Zi <- array(0, c(n, M))
+    L <- 1:M
     for(j in 1:n){
       Zi[j,] <- c(L== g_nodes[[i]][j])
     }
@@ -147,9 +148,9 @@ nodes_comm_2 <- function(A, g_lay, K){
 # U_init <- InitializationMMSBM(tnsr, ranks = r )
 # f <- PowerIteration(tnsr, ranks = r, type="TWIST", U_init, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05)
 # a <- Community_cluster_km(f[[2]],"N",M)
-# #print(dim(f[[1]]))
+# print(dim(f[[3]]))
 # # layes <- layer_comm_2(f[[2]], M)
 # # nod <- nodes_comm_2(A, layes[[1]], K)
-
-
-
+# 
+# 
+# 

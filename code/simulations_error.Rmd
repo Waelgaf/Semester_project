@@ -2,7 +2,9 @@
 title: "Error simulation"
 author: "Wael"
 date: "02/05/2023"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -22,7 +24,7 @@ library(ggplot2)
 
 
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Numerical comparison of algorithm 2 and 3
 
 #We vary N
@@ -31,84 +33,118 @@ K <- 3
 M <- 3
 ro <- 0.6
 a <- 0.9
-N <- c(60, 150, 270)
-er_2l <- rep(0, length(N))
-er_3l <- rep(0, length(N))
-er_2n <- rep(0, length(N))
-er_3n <- rep(0, length(N))
+N <- c(60, 90, 120, 150, 180, 210, 240, 270, 300)
+nl <-5
+# er_2l <- rep(0, length(N))
+# er_3l <- rep(0, length(N))
+# er_2n <- rep(0, length(N))
+# er_3n <- rep(0, length(N))
 
-j <- 0  
-for(n in N){
-  j <- j+1
-  e <- rep(0,4)
-  nl <- rep(n,2)
-  for(i in nl){
-    e <- error_12(n, K, L, M, ro, a) + e
-    print(n)
+e_N <- array(data = NA, dim = c(length(N), 4, nl), dimnames = list(N, c("er_2l","er_3l","er_2n","er_3n"), NULL))
+for(j in 1:length(N)){
+  for(i in 1:nl){
+    e_N[j,,i] <- error_12(N[j], K, L, M, ro, a)
+    
   }
-  er_2l[j] <- e[1]/2
-  er_3l[j] <- e[2]/2
-  er_2n[j] <- e[3]/2
-  er_3n[j] <- e[4]/2
+  
 }
+e_m_N <- apply(e_N, 1:2, mean)
+e_sd_N <- apply(e_N, 1:2, sd)
 gnN <- ggplot(data = NULL,aes(x=N))
-gnN <- gnN + geom_line(aes(y=er_2n), colour = "green")
-gnN <- gnN + geom_line(aes(y=er_3n), colour = "blue")
+gnN <- gnN + geom_line(aes(y=e_m_N[,3]), colour = "green")
+gnN <- gnN + geom_line(aes(y=e_m_N[,4]), colour = "blue")
 
 glN <- ggplot(data = NULL,aes(x=N))
-glN <- glN + geom_line(aes(y=er_2l), colour = "green")
-glN <- glN + geom_line(aes(y=er_3l), colour = "blue")
+glN <- glN + geom_line(aes(y=e_m_N[,1]), colour = "green")
+glN <- glN + geom_line(aes(y=e_m_N[,2]), colour = "blue")
 
 gnN + ggtitle("Missclassification rate vs N (within layers)")
 glN + ggtitle("Missclassification rate vs N (between layers)")
 
 
 
+
 ```
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Numerical comparison of algorithm 2 and 3
 #We vary M
 L <- 40
 K <- 3
 ro <- 0.7
 a <- 0.5
-N <- 150
+N <- 100
 M <- c(2,3,4,5,6)
-er_2l <- rep(0, length(M))
-er_3l <- rep(0, length(M))
-er_2n <- rep(0, length(M))
-er_3n <- rep(0, length(M))
+ml <- 5
+# er_2l <- rep(0, length(M))
+# er_3l <- rep(0, length(M))
+# er_2n <- rep(0, length(M))
+# er_3n <- rep(0, length(M))
 
-j <- 0  
-for(m in M){
-  j <- j+1
-  e <- rep(0,4)
-  ml <- rep(m,5)
-  for(i in ml){
-    e <- error_12(N, K, L, m, ro, a) + e
+e_M <- array(data = NA, dim = c(length(M), 4, nl), dimnames = list(M, c("er_2l","er_3l","er_2n","er_3n"), NULL))
+for(j in 1:length(M)){
+  for(i in 1:ml){
+    e_M[j,,i] <- error_12(N, K, L, M[j], ro, a) 
   }
-  er_2l[j] <- e[1]/5
-  er_3l[j] <- e[2]/5
-  er_2n[j] <- e[3]/5
-  er_3n[j] <- e[4]/5
 }
+e_m_M <- apply(e_M, 1:2, mean)
+e_sd_M <- apply(e_M, 1:2, sd)
 gnM <- ggplot(data = NULL,aes(x=M))
-gnM <- gnM + geom_line(aes(y=er_2n), colour = "green")
-gnM <- gnM + geom_line(aes(y=er_3n), colour = "blue")
+gnM <- gnM + geom_line(aes(y=e_m_M[,3]), colour = "green")
+gnM <- gnM + geom_line(aes(y=e_m_M[,4]), colour = "blue")
 
 glM <- ggplot(data = NULL,aes(x=M))
-glM <- glM + geom_line(aes(y=er_2l), colour = "green")
-glM <- glM + geom_line(aes(y=er_3l), colour = "blue")
+glM <- glM + geom_line(aes(y=e_m_M[,1]), colour = "green")
+glM <- glM + geom_line(aes(y=e_m_M[,2]), colour = "blue")
 
-gnM + ggtitle("Missclassification rate vs N (within layers)")
-glM + ggtitle("Missclassification rate vs N (between layers)")
+gnM + ggtitle("Missclassification rate vs M (within layers)")
+glM + ggtitle("Missclassification rate vs M (between layers)")
+
+
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#Numerical comparison of algorithm 2 and 3
+#We vary K
+L <- 40
+K <- c(2,3,4,5,6)
+ro <- 0.7
+a <- 0.5
+N <- 100
+M <- 3
+kl <- 5
+# er_2l <- rep(0, length(M))
+# er_3l <- rep(0, length(M))
+# er_2n <- rep(0, length(M))
+# er_3n <- rep(0, length(M))
+
+e_K <- array(data = NA, dim = c(length(K), 4, nl), dimnames = list(K, c("er_2l","er_3l","er_2n","er_3n"), NULL))
+for(j in 1:length(K)){
+  for(i in 1:kl){
+    e_K <- error_12(N, K[j], L, M, ro, a) 
+  }
+}
+e_m_K <- apply(e_K, 1:2, mean)
+e_sd_K <- apply(e_K, 1:2, sd)
+gnK <- ggplot(data = NULL,aes(x=K))
+gnK <- gnK + geom_line(aes(y=e_m_K[,3]), colour = "green")
+gnK <- gnK + geom_line(aes(y=e_m_K[,4]), colour = "blue")
+
+glK <- ggplot(data = NULL,aes(x=K))
+glK <- glK + geom_line(aes(y=e_m_K[,1]), colour = "green")
+glK <- glK + geom_line(aes(y=e_m_K[,2]), colour = "blue")
+
+gnK + ggtitle("Missclassification rate vs K (within layers)")
+glK + ggtitle("Missclassification rate vs K (between layers)")
 
 
 
 ```
 
 
-```{r}
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Numerical comparison of algorithm 1, 2 and 3
 # So, we consider M=1 to include the first algorithm
 
@@ -117,31 +153,22 @@ L <- c(4,4)
 K <- 3
 ro <- 0.7
 a <- 0.5
-N <- c(60, 90, 120)
-er_1n <- rep(0, length(N))
-er_2n <- rep(0, length(N))
-er_3n <- rep(0, length(N))
-
-j <- 0  
-for(n in N){
-  j <- j+1
-  e <- rep(0,3)
-  nl <- rep(n,2)
-  for(i in nl){
-    e <- error_123(n, K, L, ro, a) + e
+N <- c(60, 90, 120, 150, 180, 210, 240, 270, 300)
+l_123 <- 5
+e_123 <- array(data = NA, dim = c(length(N),3,l_123))
+for(j in 1:length(N)){
+  for(i in 1:l_123){
+    e_123[j,,i] <- error_123(N[j], K, L, ro, a) 
   }
-  er_1n[j] <- e[1]/2
-  er_2n[j] <- e[2]/2
-  er_3n[j] <- e[3]/2
 }
-gn <- ggplot(data = NULL,aes(x=N))
-gn <- gn + geom_line(aes(y=er_1n), colour = "red")
-gn<- gn + geom_line(aes(y=er_2n), colour = "green")
-gn<- gn + geom_line(aes(y=er_3n), colour = "blue")
+e_m_123 <- apply(e_123, 1:2, mean)
+e_sd_123 <- apply(e_123, 1:2, sd)
+gn123 <- ggplot(data = NULL,aes(x=N))
+gn123 <- gn123 + geom_line(aes(y=e_m_123[,1]), colour = "green")
+gn123 <- gn123 + geom_line(aes(y=e_m_123[,2]), colour = "blue")
+gn123 <- gn123 + geom_line(aes(y=e_m_123[,3]), colour = "red")
+gn123 + ggtitle("Missclassification rate vs N")
 
-
-
-gn + ggtitle("Missclassification rate vs N (between layers)")
 
 
 
