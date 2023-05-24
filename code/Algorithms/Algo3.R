@@ -117,7 +117,7 @@ init_algo3 <- function(A,m){
 }
 
 
-Algo_3 <- function(A, K, iter_max = 70, e = 0.05){
+Algo_3 <- function(A, K, iter_max = 25, e = 1e-4){
   #Inputs:
   # A: adjacency tensor of dimension Lxnxn
   # K: vector of length M (=number of class of layers) and K_i = number of communities in class i
@@ -131,7 +131,7 @@ Algo_3 <- function(A, K, iter_max = 70, e = 0.05){
   #iteration
   i <- 0
   n <- 1
-  while((i < iter_max)|(n > e)){
+  while((i < iter_max)&&(n > e)){
     W <- W_old
     i <- i + 1
     #print(A[1,,]

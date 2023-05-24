@@ -8,7 +8,7 @@ library(rMultiNet)
 norm_vec <- function(x) sqrt(sum(x^2))
 reg_vec <- function(x,delta) min(delta,norm_vec(x))/norm_vec(x)*x
 
-PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000, delta2=1000, max_iter = 70, tol = 1e-05){
+PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000, delta2=1000, max_iter = 75, tol = 1e-04){
   stopifnot(is(tnsr, "Tensor"))
   if (is.null(ranks))
     stop("ranks must be specified")
@@ -24,19 +24,19 @@ PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000,
     curr_iter <- 1
     converged <- FALSE
     fnorm_resid <- rep(0, max_iter)
-    CHECK_CONV <- function(Z, U_list) {
-      est <- ttl(Z, U_list, ms = 1:num_modes)
-      curr_resid <- fnorm(tnsr - est)
-      fnorm_resid[curr_iter] <<- curr_resid
-      if (curr_iter == 1)
-        return(FALSE)
-      if (abs(curr_resid - fnorm_resid[curr_iter - 1])/tnsr_norm <
-          tol)
-        return(TRUE)
-      else {
-        return(FALSE)
-      }
-    }
+    # CHECK_CONV <- function(Z, U_list) {
+    #   est <- ttl(Z, U_list, ms = 1:num_modes)
+    #   curr_resid <- fnorm(tnsr - est)
+    #   fnorm_resid[curr_iter] <<- curr_resid
+    #   if (curr_iter == 1)
+    #     return(FALSE)
+    #   if (abs(curr_resid - fnorm_resid[curr_iter - 1])/tnsr_norm <
+    #       tol)
+    #     return(TRUE)
+    #   else {
+    #     return(FALSE)
+    #   }
+    # }
     pb <- txtProgressBar(min = 0, max = max_iter, style = 3)
     while ((curr_iter < max_iter) && (!converged)) {
       #cat("iteration", curr_iter, "\n")
@@ -46,6 +46,7 @@ PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000,
 
       ##Regularization
       U_list_reg = U_list
+      W_old <- U_list[[3]]
       for(m in modes_seq)
       {
         if(m == 1 | m == 2)
@@ -65,8 +66,10 @@ PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000,
       }
 
       Z <- ttm(X, mat = t(U_list[[num_modes]]), m = num_modes)
+      W_new <- U_list[[3]]
+      conv <- norm(W_old-W_new, type = "F")
 
-      if (CHECK_CONV(Z, U_list)) {
+      if (conv < tol) {
         converged <- TRUE
         #setTxtProgressBar(pb, max_iter)
       }
@@ -84,7 +87,7 @@ PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000,
                                                                    1), all_resids = fnorm_resid))
     network_embedding <- U_list[[3]]
     node_embedding <- U_list[[1]]
-    return(list(Z, network_embedding, node_embedding))
+    return(list(Z, network_embedding, node_embedding, curr_iter))
   }
   if(type == "TUCKER")
   {

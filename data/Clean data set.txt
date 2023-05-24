@@ -1,0 +1,12 @@
+Clean data set:
+
+Ignore small airlines
+
+Pick large ones
+	-lufthansa,...
+
+
+How to pick airlines:
+
+Compute the differnet adjacency matrices (A_1, A_2, ...), their respective degree and d_1, d_2, ...
+if mean d_i < epsilon --> reject layer i (airport i)	

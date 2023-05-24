@@ -149,7 +149,7 @@ glK + ggtitle("Missclassification rate vs K (between layers)")
 # So, we consider M=1 to include the first algorithm
 
 #We vary N
-L <- c(4,4)
+L <- c(20,20)
 K <- 3
 ro <- 0.7
 a <- 0.5
