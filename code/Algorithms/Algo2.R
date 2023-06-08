@@ -112,6 +112,19 @@ layer_comm_2 <- function(W, m){
   return(list(g, Z))
 }
 
+layer_comm_2_r <- function(W, m){
+  l <- dim(W)[1]
+  km <- kmeans(W, m)
+  g <- km$cluster
+  L <- 1:m
+  Z <- array(0, c(l, m))
+  for(i in 1:l){
+    Z[i,] <- c(L== g[i])
+  }
+  
+  return(list(g, Z, km$tot.withinss))
+}
+
 nodes_comm_2 <- function(A, g_lay, K){
   A <- A@data
   n <- dim(A)[2]
@@ -132,6 +145,30 @@ nodes_comm_2 <- function(A, g_lay, K){
   }
   return(list(g_nodes,Z))
   
+}
+
+nodes_comm_2_real_data <- function(A, g_lay, K){
+  A <- A@data
+  n <- dim(A)[2]
+  M <- length(K)
+  Z <- list()
+  s <- 0
+  g_nodes <- list()
+  for(i in 1:M){
+    l <- which(g_lay == i)
+    Al <- A[,,l]
+    Al <- apply(Al,1:2, mean)
+    km <- kmeans(Al, K[i])
+    g_nodes[[i]] <- km$cluster
+    s <- s + km$tot.withinss
+    Zi <- array(0, c(n, M))
+    L <- 1:M
+    for(j in 1:n){
+      Zi[j,] <- c(L== g_nodes[[i]][j])
+    }
+    Z[[i]] <- Zi
+  }
+  return(list(g_nodes,Z, s))
 }
 # #Number of inidividuals
 # N <- 64

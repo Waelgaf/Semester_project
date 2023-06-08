@@ -17,6 +17,7 @@ source("Generation_network.R")
 source("global_error.R")
 source("error_measures.R")
 library(ggplot2)
+set.seed(561)
 ```
 
 
@@ -31,19 +32,19 @@ library(ggplot2)
 L <- 40
 K <- 3
 M <- 3
-ro <- 0.6
+ro <- 0.7
 a <- 0.9
 N <- c(60, 90, 120, 150, 180, 210, 240, 270, 300)
-nl <-5
+nl <-3
 # er_2l <- rep(0, length(N))
 # er_3l <- rep(0, length(N))
 # er_2n <- rep(0, length(N))
 # er_3n <- rep(0, length(N))
 
-e_N <- array(data = NA, dim = c(length(N), 4, nl), dimnames = list(N, c("er_2l","er_3l","er_2n","er_3n"), NULL))
+e_N <- array(data = NA, dim = c(length(N), 4, nl), dimnames = list(N, c("er_2l","er_3l","er_2n","er_3n"),NULL))
 for(j in 1:length(N)){
   for(i in 1:nl){
-    e_N[j,,i] <- error_12(N[j], K, L, M, ro, a)
+    e_N[j,,i] <- error_12(N[j], K, L, M, ro, a)[1:4]
     
   }
   
@@ -65,39 +66,105 @@ glN + ggtitle("Missclassification rate vs N (between layers)")
 
 
 ```
+
+```{r}
+error_N <- e_N[1:7,,]
+e_m_N <- apply(error_N, 1:2, mean)
+e_sd_N <- apply(error_N, 1:2, sd)
+
+```
+```{r}
+N <- N[1:7]
+gnN <- ggplot(data = NULL,aes(x=N))
+gnN <- gnN + geom_line(aes(y=e_m_N[,3]), colour = "green")
+gnN <- gnN + geom_line(aes(y=e_m_N[,4]), colour = "blue")
+
+glN <- ggplot(data = NULL,aes(x=N))
+glN <- glN + geom_line(aes(y=e_m_N[,1]), colour = "green") 
+glN <- glN + geom_line(aes(y=e_m_N[,2]), colour = "blue")
+
+glN <- glN + geom_errorbar(aes(ymin=e_m_N - e_sd_N, ymax=e_m_N + e_sd_N), width=.2,
+                position=position_dodge(0.05))
+
+gnN + ggtitle("Missclassification rate vs N (within layers)")
+glN + ggtitle("Missclassification rate vs N (between layers)")
+```
+```{r}
+#Numerical comparison of algorithm 2 and 3
+
+#We vary N
+L <- 40
+K <- 3
+M <- 3
+ro <- 0.6
+a <- 0.9
+N <- c(60, 90, 120, 150, 180, 210, 240, 270, 300)
+nl <- 100
+# er_2l <- rep(0, length(N))
+# er_3l <- rep(0, length(N))
+# er_2n <- rep(0, length(N))
+# er_3n <- rep(0, length(N))
+iteraa<- array(data = NA, dim = c(length(N), 2, nl))
+e_N_1 <- array(data = NA, dim = c(length(N), 4, nl), dimnames = list(N, c("er_2l","er_3l","er_2n","er_3n"), NULL))
+for(j in 1:length(N)){
+  for(i in 1:nl){
+    er <- error_12(N[j], K, L, M, ro, a)
+    e_N_1[j,,i] <- er[1:4]
+    iteraa[j,,i] <- er[5:6]
+  }
+  
+}
+e_m_N_1 <- apply(e_N_1, 1:2, mean)
+e_sd_N_1 <- apply(e_N_1, 1:2, sd)
+gnN <- ggplot(data = NULL,aes(x=N))
+gnN <- gnN + geom_line(aes(y=e_m_N_1[,3]), colour = "red", size = 0.2) + geom_errorbar(aes(ymin=e_m_N_1[,3] - e_sd_N_1[,3], ymax = e_m_N_1[,3] + e_sd_N_1[,3] ), width = 7, size = 1, colour = "red", alpha = 0.3)
+gnN <- gnN + geom_line(aes(y=e_m_N_1[,4]), colour = "blue", size = 0.2) + geom_errorbar(aes(ymin=e_m_N_1[,4] - e_sd_N_1[,4], ymax = e_m_N_1[,4] + e_sd_N_1[,4] ), width = 7, size = 1, colour = "blue", alpha = 0.3)
+
+glN <- ggplot(data = NULL,aes(x=N))
+glN <- glN + geom_line(aes(y=e_m_N_1[,1]), colour = "red", size = 0.2) + geom_errorbar(aes(ymin=e_m_N_1[,1] - e_sd_N_1[,1], ymax = e_m_N_1[,1] + e_sd_N_1[,1] ), width =7, colour = "red", size = 1, alpha = 0.3)
+glN <- glN + geom_line(aes(y=e_m_N_1[,2]), colour = "blue", size = 0.2) + geom_errorbar(aes(ymin=e_m_N_1[,2] - e_sd_N_1[,2], ymax = e_m_N_1[,2] + e_sd_N_1[,2] ), width = 7, colour = "blue", size = 1, alpha = 0.3)
+
+gnN +xlab("N")+ylab("Missclassification rate")+theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=15))
+glN +xlab("N")+ylab("Missclassification rate")+theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=15))
+
+```
+
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Numerical comparison of algorithm 2 and 3
 #We vary M
 L <- 40
 K <- 3
-ro <- 0.7
-a <- 0.5
+ro <- c(0.5, 0.55, 0.6, 0.65, 0.75, 0.8, 0.85, 0.9, 0.95,  1)
+a <- 0.9
 N <- 100
-M <- c(2,3,4,5,6)
-ml <- 5
+M <- 3
+rol <- 100
 # er_2l <- rep(0, length(M))
 # er_3l <- rep(0, length(M))
 # er_2n <- rep(0, length(M))
 # er_3n <- rep(0, length(M))
 
-e_M <- array(data = NA, dim = c(length(M), 4, nl), dimnames = list(M, c("er_2l","er_3l","er_2n","er_3n"), NULL))
-for(j in 1:length(M)){
-  for(i in 1:ml){
-    e_M[j,,i] <- error_12(N, K, L, M[j], ro, a) 
+e_ro <- array(data = NA, dim = c(length(ro), 4, rol), dimnames = list(ro, c("er_2l","er_3l","er_2n","er_3n"), NULL))
+for(j in 1:length(ro)){
+  for(i in 1:rol){
+    e_ro[j,,i] <- error_12(N, K, L, M, ro[j], a)[1:4] 
   }
 }
-e_m_M <- apply(e_M, 1:2, mean)
-e_sd_M <- apply(e_M, 1:2, sd)
-gnM <- ggplot(data = NULL,aes(x=M))
-gnM <- gnM + geom_line(aes(y=e_m_M[,3]), colour = "green")
-gnM <- gnM + geom_line(aes(y=e_m_M[,4]), colour = "blue")
+e_m_ro <- apply(e_ro, 1:2, mean)
+e_sd_ro <- apply(e_ro, 1:2, sd)
+gnro <- ggplot(data = NULL,aes(x=ro))
+gnro <- gnro + geom_line(aes(y=e_m_ro[,3]), colour = "red", size = 0.2) + geom_errorbar(aes(ymin=e_m_ro[,3] - e_sd_ro[,3], ymax = e_m_ro[,3] + e_sd_ro[,3] ), width = 0.01, colour = "red", alpha = 0.3, size = 1)
+gnro <- gnro + geom_line(aes(y=e_m_ro[,4]), colour = "blue", size = 0.2) + geom_errorbar(aes(ymin=e_m_ro[,4] - e_sd_ro[,4], ymax = e_m_ro[,4] + e_sd_ro[,4] ), width = 0.01, colour = "blue", alpha = 0.3, size = 1)
 
-glM <- ggplot(data = NULL,aes(x=M))
-glM <- glM + geom_line(aes(y=e_m_M[,1]), colour = "green")
-glM <- glM + geom_line(aes(y=e_m_M[,2]), colour = "blue")
+glro <- ggplot(data = NULL,aes(x=ro))
+glro <- glro + geom_line(aes(y=e_m_ro[,1]), colour = "red", size = 0.2) + geom_errorbar(aes(ymin=e_m_ro[,1] - e_sd_ro[,1], ymax = e_m_ro[,1] + e_sd_ro[,1] ), width =0.01, colour = "red", alpha = 0.3, size = 1)
+glro <- glro + geom_line(aes(y=e_m_ro[,2]), colour = "blue", size = 0.2) + geom_errorbar(aes(ymin=e_m_ro[,2] - e_sd_ro[,2], ymax = e_m_ro[,2] + e_sd_ro[,2] ), width = 0.01, colour = "blue", alpha = 0.3, size = 1)
 
-gnM + ggtitle("Missclassification rate vs M (within layers)")
-glM + ggtitle("Missclassification rate vs M (between layers)")
+gnro +xlab("ro")+ylab("Missclassification rate")
+glro +xlab("ro")+ylab("Missclassification rate")
 
 
 
@@ -108,34 +175,34 @@ glM + ggtitle("Missclassification rate vs M (between layers)")
 #We vary K
 L <- 40
 K <- c(2,3,4,5,6)
-ro <- 0.7
-a <- 0.5
+ro <- 0.6
+a <- 0.9
 N <- 100
 M <- 3
-kl <- 5
+kl <- 100
 # er_2l <- rep(0, length(M))
 # er_3l <- rep(0, length(M))
 # er_2n <- rep(0, length(M))
 # er_3n <- rep(0, length(M))
 
-e_K <- array(data = NA, dim = c(length(K), 4, nl), dimnames = list(K, c("er_2l","er_3l","er_2n","er_3n"), NULL))
+e_K <- array(data = NA, dim = c(length(K), 4, kl), dimnames = list(K, c("er_2l","er_3l","er_2n","er_3n"), NULL))
 for(j in 1:length(K)){
   for(i in 1:kl){
-    e_K <- error_12(N, K[j], L, M, ro, a) 
+    e_K[j,,i] <- error_12(N, K[j], L, M, ro, a)[1:4] 
   }
 }
 e_m_K <- apply(e_K, 1:2, mean)
 e_sd_K <- apply(e_K, 1:2, sd)
 gnK <- ggplot(data = NULL,aes(x=K))
-gnK <- gnK + geom_line(aes(y=e_m_K[,3]), colour = "green")
-gnK <- gnK + geom_line(aes(y=e_m_K[,4]), colour = "blue")
+gnK <- gnK + geom_line(aes(y=e_m_K[,3]), colour = "red", size = 0.2) + geom_errorbar(aes(ymin=e_m_K[,3] - e_sd_K[,3], ymax = e_m_K[,3] + e_sd_K[,3] ), width = 0.15, colour = "red", size = 1, alpha = 0.3)
+gnK <- gnK + geom_line(aes(y=e_m_K[,4]), colour = "blue") + geom_errorbar(aes(ymin=e_m_K[,4] - e_sd_K[,4], ymax = e_m_K[,4] + e_sd_K[,4] ), width = 0.15, colour = "blue", alpha = 0.3)
 
 glK <- ggplot(data = NULL,aes(x=K))
-glK <- glK + geom_line(aes(y=e_m_K[,1]), colour = "green")
-glK <- glK + geom_line(aes(y=e_m_K[,2]), colour = "blue")
+glK <- glK + geom_line(aes(y=e_m_K[,1]), colour = "red", size = 0.2) + geom_errorbar(aes(ymin=e_m_K[,1] - e_sd_K[,1], ymax = e_m_K[,1] + e_sd_K[,1] ), width =0.15, colour = "red", size = 1, alpha = 0.3)
+glK <- glK + geom_line(aes(y=e_m_K[,2]), colour = "blue", size = 0.2) + geom_errorbar(aes(ymin=e_m_K[,2] - e_sd_K[,2], ymax = e_m_K[,2] + e_sd_K[,2] ), width = 0.15, colour = "blue", size = 1, alpha = 0.3)
 
-gnK + ggtitle("Missclassification rate vs K (within layers)")
-glK + ggtitle("Missclassification rate vs K (between layers)")
+gnK +xlab("K")+ylab("Missclassification rate")
+glK+xlab("K")+ylab("Missclassification rate")
 
 
 
@@ -149,13 +216,13 @@ glK + ggtitle("Missclassification rate vs K (between layers)")
 # So, we consider M=1 to include the first algorithm
 
 #We vary N
-L <- c(20,20)
+L <- 40
 K <- 3
-ro <- 0.7
+ro <- 0.6
 a <- 0.5
 N <- c(60, 90, 120, 150, 180, 210, 240, 270, 300)
-l_123 <- 5
-e_123 <- array(data = NA, dim = c(length(N),3,l_123))
+l_123 <- 100
+e_123 <- array(data = NA, dim = c(length(N),2,l_123))
 for(j in 1:length(N)){
   for(i in 1:l_123){
     e_123[j,,i] <- error_123(N[j], K, L, ro, a) 
@@ -164,15 +231,8 @@ for(j in 1:length(N)){
 e_m_123 <- apply(e_123, 1:2, mean)
 e_sd_123 <- apply(e_123, 1:2, sd)
 gn123 <- ggplot(data = NULL,aes(x=N))
-gn123 <- gn123 + geom_line(aes(y=e_m_123[,1]), colour = "green")
-gn123 <- gn123 + geom_line(aes(y=e_m_123[,2]), colour = "blue")
-gn123 <- gn123 + geom_line(aes(y=e_m_123[,3]), colour = "red")
-gn123 + ggtitle("Missclassification rate vs N")
-
-
-
-
-
+gn123 <- gn123 + geom_line(aes(y=e_m_123[,1]), colour = "green", size = 0.2) + geom_errorbar(aes(ymin=e_m_123[,1] - e_sd_123[,1], ymax = e_m_123[,1] + e_sd_123[,1] ), width =7, colour = "green", size = 1, alpha = 0.3)
+gn123 <- gn123 + geom_line(aes(y=e_m_123[,2]), colour = "red", size = 0.2) + geom_errorbar(aes(ymin=e_m_123[,2] - e_sd_123[,2], ymax = e_m_123[,2] + e_sd_123[,2] ), width =7, colour = "red", size = 1, alpha = 0.3)
 ```
 
 

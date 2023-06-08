@@ -185,3 +185,32 @@ nodes_comm_3 <- function(Q, K){
   return(list(g, Z))
 }
 
+nodes_comm_3_real_data <- function(Q, K){
+  m <- length(K)
+  n <- dim(Q)[2]
+  g <- list()
+  Z <- list()
+  s <- 0
+  for(i in 1:m){
+    Qi <- Q[i,,]
+    Ui <- eigen(Qi)$vectors
+    Uit <- matrix(0,n, K[i] )
+    # for(j in 1:K[i]){
+    #   Uit[,j] <- Ui[,j]
+    #   
+    # }
+    Uit <- Ui[,1:K[i]]
+    km <- kmeans(Uit, K[i])
+    g[[i]] <- km$cluster
+    s <- s + km$tot.withinss
+    print(s)
+    Zi <- array(0, c(n, m))
+    L <- 1:m
+    for(j in 1:n){
+      Zi[j,] <- c(L== g[[i]][j])
+    }
+    Z[[i]] <- Zi
+  }
+  return(list(g, Z, s))
+}
+
