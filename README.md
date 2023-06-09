@@ -14,11 +14,12 @@
  * Simulation study
  * and, real data set analysis.
  # References
+ Major thanks to Dr. YoungSeok S. and Pr. Olhede S. for supervising this project.
  * "Jing Lei, Kehui Chen, and Brian Lynch. Consistent community detection in multi-layer network data.
 Biometrika, 107(1):61–73, 2019. doi: https://doi.org/10.1093/biomet/asz068."
 * "Bing-Yi Jing, Ting Li, Zhongyuan Lyu, and Dong Xia. Community detection on mixture multi-layer networks
 via regularized tensor decomposition. 2020. doi: https://doi.org/10.48550/arXiv.2002.04457"
-* "Xing Fan, Marianna Pensky, Feng Yu, and Teng Zhang. Alma: Alternating minimization algorithm for clus-
-tering mixture multilayer network. 2021. doi: https://doi.org/10.48550/arXiv.2102.10226."
+* "Xing Fan, Marianna Pensky, Feng Yu, and Teng Zhang. Alma: Alternating minimization algorithm for clustering mixture multilayer network. 2021. doi: https://doi.org/10.48550/arXiv.2102.10226."
+
 
  
