@@ -1,4 +1,4 @@
-
+set.seed(44)
 library(data.table)
 library(igraph)
 library(Rcpp)
@@ -132,10 +132,11 @@ for(k in K){
   print("e")
 }
 #Elbow method on graph g
-g <- ggplot(data = NULL, aes(x=K))+ geom_line(aes(y = tot_var2), colour = "blue", size = 1) + geom_line(aes(y = tot_var3), colour = "red", size = 1)
-g
-#So, k = 3, (m=3)
-k <- 3
+g <- ggplot(data = NULL, aes(x=K))+ geom_line(aes(y = tot_var2), colour = "blue", size = 1) + geom_line(aes(y = tot_var3), colour = "red", size = 1)+ylab("sum of squares")
+g + theme(axis.text=element_text(size=12),
+          axis.title=element_text(size=12))
+#So, k = 4, (m=3)
+k <- 4
 m <- 3
 #Algo 2
 q <- k*m -(m-1)
@@ -145,8 +146,17 @@ s2 <- PowerIteration(A_tf, ranks = r, type="TWIST", U_init, delta1=1000, delta2=
 gl2 <- layer_comm_2(s2[[2]], m)[[1]]
 
 
-glay2 <- ggplot(NULL, aes(x = s2[[2]][,1], y = s2[[2]][,2], label = companies_names$V2)) +geom_text(check_overlap = TRUE, aes(color = factor(gl2)))
-glay2 + xlab("first component") + ylab("second component") + theme(legend.position = "none")
+glay2 <- ggplot(NULL, aes(x = s2[[2]][,2], y = s2[[2]][,3], label = companies_names$V2)) +geom_text(check_overlap = TRUE, aes(color = factor(gl2)))
+glay2 + xlab("second component") + ylab("third component") + theme(legend.position = "none")+theme(axis.text=element_text(size=12),
+                                                                                                   axis.title=element_text(size=12))
 
 
 #Algo3
+s3 <- Algo_3(A_f, rep(k,m), iter_max = 500, e= 0.001)
+gl3 <- layer_comm_3(s3[[2]], m)[[1]]
+gn3 <- nodes_comm_3(s3[[1]], rep(k,m))[[1]]
+
+glay3 <- ggplot(NULL, aes(x = s3[[2]][2,], y = s3[[2]][3,], label = companies_names$V2)) +geom_text(check_overlap = FALSE, aes(color = factor(gl3)))
+glay3 + xlab("second component") + ylab("third component") + theme(legend.position = "none")+theme(axis.text=element_text(size=12),
+                                                                                                   axis.title=element_text(size=12))
+
