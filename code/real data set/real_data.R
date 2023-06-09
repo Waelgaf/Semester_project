@@ -3,7 +3,6 @@ library(data.table)
 library(igraph)
 library(Rcpp)
 Rcpp::cppFunction('double mylast(NumericVector x) { int n = x.size(); return x[n-1]; }')
-#readLines("C:/Users/waelg/OneDrive/Bureau/EPFL_4_2/Semester_project/data/airport/EUAirTransportation_multiplex.edges", n=10)
 dat <- read.table("C:/Users/waelg/OneDrive/Bureau/EPFL_4_2/Semester_project/data/airport/EUAirTransportation_multiplex.edges", sep="")
 layers_name <- read.table("C:/Users/waelg/OneDrive/Bureau/EPFL_4_2/Semester_project/data/airport/EUAirTransportation_layers.txt", sep = "")
 nodes_name <- read.table("C:/Users/waelg/OneDrive/Bureau/EPFL_4_2/Semester_project/data/airport/EUAirTransportation_nodes.txt", sep = "")
@@ -144,11 +143,12 @@ r <- c(q,q,m)
 U_init <- InitializationMMSBM(A_tf, ranks = r )
 s2 <- PowerIteration(A_tf, ranks = r, type="TWIST", U_init, delta1=1000, delta2=1000, max_iter = 500, tol = 0.001)
 gl2 <- layer_comm_2(s2[[2]], m)[[1]]
-
+gn2 <- nodes_comm_2(A_tf, gl2, rep(k,m))[[1]]
 
 glay2 <- ggplot(NULL, aes(x = s2[[2]][,2], y = s2[[2]][,3], label = companies_names$V2)) +geom_text(check_overlap = TRUE, aes(color = factor(gl2)))
 glay2 + xlab("second component") + ylab("third component") + theme(legend.position = "none")+theme(axis.text=element_text(size=12),
                                                                                                    axis.title=element_text(size=12))
+
 
 
 #Algo3
@@ -159,3 +159,15 @@ gn3 <- nodes_comm_3(s3[[1]], rep(k,m))[[1]]
 glay3 <- ggplot(NULL, aes(x = s3[[2]][2,], y = s3[[2]][3,], label = companies_names$V2)) +geom_text(check_overlap = FALSE, aes(color = factor(gl3)))
 glay3 + xlab("second component") + ylab("third component") + theme(legend.position = "none")+theme(axis.text=element_text(size=12),
                                                                                                    axis.title=element_text(size=12))
+cols <- c(  "seagreen4", "chocolate1", "mediumblue",  "darkviolet")
+
+g2_nodes_ryanair <- gn2[[2]]
+g3_nodes_ryanair <- gn3[[2]]
+ryanair_graph <- graph_from_adjacency_matrix(A_f[2,,], mode= "undirected")
+isolated <- which(degree(ryanair_graph)==0)
+#ryanair_graph <- delete.vertices(ryanair_graph, isolated)
+plot(ryanair_graph, vertex.size = degree(ryanair_graph)/20, vertex.label=  airports, vertex.label.cex = .8, vertex.label.color = cols[g2_nodes_ryanair],
+edge.arrow.size = .02, vertex.color= "snow3", edge.color = "gray79")
+
+B <- as.data.frame(A_f[2,-isolated, -isolated], col.names = airports[-isolated], row.names = airports[-isolated])
+heatmap(A_f[2, -isolated, -isolated], Colv = NA, Rowv = NA, symm = TRUE, labRow = airports[-isolated], labCol = airports[-isolated] , col =  heat.colors(5))

@@ -3,28 +3,6 @@ library(stats)
 library(Matrix)
 library(mc2d)
 
-# simulation_network <- function(m, n, p=0){
-#   x <- c()
-#   if (p==0){
-#     p <- runif(1,0,0.6) #Ideally, if p is lower than 0.5, the correspondent graph will be sparse
-#   }
-
-#   for(j in 1:m){
-#     d <- rbern(n*n, p)
-#     layer <- matrix(d,n,n)
-#     layer <- forceSymmetric(layer, "U")
-#     layer <- layer - diag(diag(layer))
-#     
-#     x <- append(x, as.vector(layer))
-#   }
-#   Y_o <- array(x, c(n, n,m)) #To be improved!!!
-#   Y <- array(0,c(m,n,n))
-#   for(i in 1:m){
-#     Y[i,,]<-Y_o[,,i]
-#   }
-#   return(Y)
-#   
-# }
 
 #Loss function
 loss_function <- function(Y,B,h){
