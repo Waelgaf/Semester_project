@@ -159,4 +159,3 @@ gn3 <- nodes_comm_3(s3[[1]], rep(k,m))[[1]]
 glay3 <- ggplot(NULL, aes(x = s3[[2]][2,], y = s3[[2]][3,], label = companies_names$V2)) +geom_text(check_overlap = FALSE, aes(color = factor(gl3)))
 glay3 + xlab("second component") + ylab("third component") + theme(legend.position = "none")+theme(axis.text=element_text(size=12),
                                                                                                    axis.title=element_text(size=12))
-

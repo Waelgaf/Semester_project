@@ -24,19 +24,7 @@ PowerIteration<- function(tnsr, ranks=NULL, type="TWIST", U_0_list, delta1=1000,
     curr_iter <- 1
     converged <- FALSE
     fnorm_resid <- rep(0, max_iter)
-    # CHECK_CONV <- function(Z, U_list) {
-    #   est <- ttl(Z, U_list, ms = 1:num_modes)
-    #   curr_resid <- fnorm(tnsr - est)
-    #   fnorm_resid[curr_iter] <<- curr_resid
-    #   if (curr_iter == 1)
-    #     return(FALSE)
-    #   if (abs(curr_resid - fnorm_resid[curr_iter - 1])/tnsr_norm <
-    #       tol)
-    #     return(TRUE)
-    #   else {
-    #     return(FALSE)
-    #   }
-    # }
+  
     pb <- txtProgressBar(min = 0, max = max_iter, style = 3)
     while ((curr_iter < max_iter) && (!converged)) {
       #cat("iteration", curr_iter, "\n")
@@ -170,27 +158,4 @@ nodes_comm_2_real_data <- function(A, g_lay, K){
   }
   return(list(g_nodes,Z, s))
 }
-# #Number of inidividuals
-# N <- 64
-# #Communities
-# K <- c(2,2)
-# #Class of layer
-# L <- c(4,4)
-# M <- 2
-# 
-# netwe <- simul_final(N,K,L,M)
-# A <- array(0,c(N,N,8))
-# for(i in 1:8){
-#   A[,,i] <- netwe[[1]][i,,]
-# }
-# tnsr <- as.tensor(A)
-# r <- c(6,6,2)
-# U_init <- InitializationMMSBM(tnsr, ranks = r )
-# f <- PowerIteration(tnsr, ranks = r, type="TWIST", U_init, delta1=1000, delta2=1000, max_iter = 25, tol = 1e-05)
-# a <- Community_cluster_km(f[[2]],"N",M)
-# print(dim(f[[3]]))
-# # layes <- layer_comm_2(f[[2]], M)
-# # nod <- nodes_comm_2(A, layes[[1]], K)
-# 
-# 
-# 
+

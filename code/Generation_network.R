@@ -10,12 +10,8 @@ simul_bm <- function(B, Z, n){
   #Z: membership matrix n x k, w/ k the number of community
   #n :number of individuals
   #Output: Adjacency matrix
-  
-  
   A <- matrix(0, nrow = n, ncol = n)
-  #B_u <- Z %*% B %*% t(Z)
   B_u <- tcrossprod(Z%*%B, Z)
-  #print(dim(B_u))
   for( i in 1:n){
     for( j in i:n){
       p <- B_u[i,j]
@@ -24,13 +20,7 @@ simul_bm <- function(B, Z, n){
     }
   }
   
-  # A <- matrix(sapply(B_u, function(i) rbern(1,i)),n)
-  # 
-  # A <- as.matrix(forceSymmetric(A, "U"))
-  #print(dim(A))
   return(A-diag(diag(A)))
-  
-  
 }
 
 #We generate here adjacency matrices from a multilayer stochastic block model
@@ -120,48 +110,6 @@ simul_final <- function(n, K, L, M = length(L)){
   
 }
 
-# simul_final_new <- function(n, K, L, M = length(L)){
-#   #Inputs:
-#   #n: number of individuals
-#   #K: vector of size M which corresponds to the number of communities in each class of layer
-#   #L: number of layers
-#   #M: number of class of layers
-#   # Output: 
-#   # B: Stochastic Blockmodel list
-#   # A; Adjacency tensor
-#   # Z: Membership tensor
-#   # L_true: (Layer) Membership vector
-#   # G_true:(Communities)list of Membership vector
-#   l <- sum(L)
-#   B <- list()
-#   Z <- list()
-#   Z_true <- list()
-#   A <- array(0, c(l,n,n))
-#   t = 1
-#   for(i in 1:M){
-#     sl <- simul_layer(n, K[i])
-#     Z[[i]] <- sl[[1]]
-#     Z_true[[i]] <- sl[[2]]
-#     di <- runif(K[i], 0.5, 0.9)
-#     B[[i]] <- diag(di)
-#     for(j1 in 1:K[i]-1){
-#       for(j2 in (j1 + 1):K[i]){
-#         B[[i]][j1,j2] <- runif(1, 0.2, 0.55)
-#         B[[i]][j2,j1] <- B[[i]][j1,j2]
-#       }
-#       
-#     }
-#     
-#   }
-#   prob <- rep(1/M, M )
-#   L_t <- rmultinom(1,L,prob)
-#   S <- simul_mlbm(B, Z, n, L_t)
-#   A <- S[[1]]
-#   A1 <- S[[3]]
-#   L_true <- S[[2]]
-#   return(list(A, B, Z, L_true, Z_true, A1))
-#   
-# }
 
 alma_generation <- function(n, K, L, M, ro, a){
   #Inputs:

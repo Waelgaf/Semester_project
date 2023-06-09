@@ -56,33 +56,14 @@ prod_1 <- function(X, A){
   m <- dim(A)[1]
   Y <- array(1,c(m, d[2], d[3]))
   X_t <- matrix(0,d[1], d[2]*d[3])
-  # for(i in 1:d[1]){
-  #   X_t[i,]<-c(X[i,,])
-  # }
   X_t <- matrix(X, d[1])
   Y_t <- A %*% X_t
-  
-  # for(i in 1:m){
-  #   Y[i,,] <- array(c(Y_t[i,]),d[-1])
-  # }
-  Y <- array(Y_t,c(m,d[2],d[3]))#NOT SURE OF THAT
+  Y <- array(Y_t,c(m,d[2],d[3]))
   return(Y)
   
 }
 
 prod_2_3 <- function(A, B){
-  # d1 <- dim(A)
-  # d2 <- dim(Q)
-  # C <- matrix(0,d1[1], d2[1])
-  # for(i in 1:d1[1]){
-  #   for(j in 1:d2[1]){
-  #     C[i,j] <- crossprod(c(Q[j,,]), c(A[i,,]))
-  #   }
-  # }
-  # A <- matrix(A, nrow = dim(A)[1])
-  # Q <- matrix(Q, nrow = dim(Q)[1])
-  # C <- tcrossprod(Q,A)
-  
   A <- matrix(A, nrow = dim(A)[1])
   B <- matrix(B, nrow = dim(B)[1])
   C <- tcrossprod(A,B)
